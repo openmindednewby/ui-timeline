@@ -1,6 +1,6 @@
 {
     "name": "@dloizides/ui-timeline",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Themable React Native (RN-web) Timeline organism: a rail with dots on a phone, entries grouped by day on a desktop, chosen by width.",
     "keywords": [
         "react",
