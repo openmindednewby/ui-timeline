@@ -1,5 +1,6 @@
 export { Timeline } from './Timeline/Timeline';
-export type { TimelineProps } from './Timeline/Timeline';
+export type { TimelineProps, TimelineBaseProps } from './Timeline/Timeline';
+export type { TimelineRowAction, RowActionNone } from './Timeline/rowAction';
 export { TimelineLayout } from './Timeline/TimelineLayout';
 export type { TimelineItem, TimelineDayGroup } from './Timeline/types';
 export { TIMELINE_BREAKPOINT } from './Timeline/constants';

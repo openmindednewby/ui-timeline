@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback } from 'react';
 
 import { Pressable, StyleSheet, View } from 'react-native';
 import type { PressableStateCallbackType, StyleProp, ViewStyle } from 'react-native';
@@ -16,8 +16,6 @@ const RADIUS = 8;
 const GAP = 12;
 const PADDING_V = 8;
 const PADDING_H = 8;
-const KEY_OPEN_DEDUPE_MS = 500;
-const ENTER_KEY = 'Enter';
 
 const styles = StyleSheet.create({
   body: { flex: 1, minWidth: 0, paddingVertical: PADDING_V },
@@ -26,7 +24,6 @@ const styles = StyleSheet.create({
 });
 
 type EntryState = PressableStateCallbackType & { hovered?: boolean };
-type EntryKeyEvent = { key: string; repeat?: boolean };
 
 export interface TimelineEntryProps<T extends TimelineItem> {
   item: T;
@@ -45,17 +42,7 @@ export function TimelineEntry<T extends TimelineItem>({
 }: TimelineEntryProps<T>): React.ReactElement {
   const { theme } = useUi();
   const { ringStyle, onFocus, onBlur } = useFocusRing(RADIUS);
-  const keyOpenedAt = useRef(0);
-  const handlePress = useCallback((): void => {
-    if (Date.now() - keyOpenedAt.current < KEY_OPEN_DEDUPE_MS) return;
-    onOpen?.(item);
-  }, [onOpen, item]);
-  const handleKeyDown = useCallback((event: EntryKeyEvent): void => {
-    if (event.key !== ENTER_KEY || event.repeat === true) return;
-    keyOpenedAt.current = Date.now();
-    onOpen?.(item);
-  }, [onOpen, item]);
-  const webKeyProps = { onKeyDown: handleKeyDown } as object;
+  const handlePress = useCallback((): void => onOpen?.(item), [onOpen, item]);
   const pressStyle = useCallback(
     ({ pressed, hovered }: EntryState): StyleProp<ViewStyle> => [
       styles.pressable,
@@ -81,7 +68,6 @@ export function TimelineEntry<T extends TimelineItem>({
         onBlur={onBlur}
         onFocus={onFocus}
         onPress={handlePress}
-        {...webKeyProps}
         style={pressStyle}
         testID={testID}
       >

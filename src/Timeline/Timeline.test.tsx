@@ -1,11 +1,10 @@
-import React from 'react';
-
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 
 import { UiProvider } from '@dloizides/ui-feedback';
 import type { UiTheme } from '@dloizides/ui-feedback';
 
 import { Timeline } from './Timeline';
+import type { TimelineBaseProps, TimelineProps } from './Timeline';
 import { TimelineLayout } from './TimelineLayout';
 
 const theme: UiTheme = {
@@ -19,10 +18,14 @@ const ITEMS = [
   { id: 'two', at: new Date(2026, 10, 1, 9, 0), title: 'Second', meta: 'note' },
 ];
 
-function renderTimeline(props: Partial<React.ComponentProps<typeof Timeline>> = {}): void {
+type Item = (typeof ITEMS)[number];
+const HOLD_MS = 600;
+
+function renderTimeline(props: Partial<TimelineBaseProps<Item>> & { onOpenItem?: (item: Item) => void } = {}): void {
+  const merged = { accessibilityLabel: 'history', items: ITEMS, rowAction: { none: 'read only history' }, ...props } as TimelineProps<Item>;
   render(
     <UiProvider t={(key) => key} theme={theme}>
-      <Timeline accessibilityLabel="history" items={ITEMS} {...props} />
+      <Timeline {...merged} />
     </UiProvider>,
   );
 }
@@ -37,16 +40,20 @@ describe('Timeline', () => {
     expect(onOpenItem).toHaveBeenCalledWith(ITEMS[1]);
   });
 
-  it('with an onOpenItem and Enter on a focused entry (keydown, keyup), opens that item once', () => {
+  it('with an onOpenItem and Enter held past the long-press delay then the browser click, opens that item once', () => {
+    jest.useFakeTimers();
     const onOpenItem = jest.fn();
     renderTimeline({ onOpenItem, layout: TimelineLayout.Day });
     const entry = screen.getByTestId('timeline-item-one');
-    entry.focus();
+    act(() => entry.focus());
 
     fireEvent.keyDown(entry, { key: 'Enter', code: 'Enter' });
+    act(() => jest.advanceTimersByTime(HOLD_MS));
     fireEvent.keyUp(entry, { key: 'Enter', code: 'Enter' });
+    fireEvent.click(entry);
 
-    expect(onOpenItem.mock.calls).toEqual([[ITEMS[0]]]);
+    jest.useRealTimers();
+    expect([entry.tagName, onOpenItem.mock.calls]).toEqual(['BUTTON', [[ITEMS[0]]]]);
   });
 
   it('without onOpenItem, renders no entry as a button', () => {

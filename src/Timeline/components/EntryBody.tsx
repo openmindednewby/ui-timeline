@@ -16,7 +16,7 @@ export interface EntryBodyProps {
   meta?: string;
 }
 
-/** Atom: the default entry text, a time line, the title and the optional meta. */
+/** Molecule: the default entry text, a time line, the title and the optional meta. */
 export const EntryBody = ({ title, timeLabel, meta }: EntryBodyProps): React.ReactElement => (
   <View style={styles.body}>
     {timeLabel === '' ? null : <AppText kind={TextKind.Small}>{timeLabel}</AppText>}

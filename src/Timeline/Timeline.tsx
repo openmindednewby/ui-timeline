@@ -6,15 +6,15 @@ import { TIMELINE_BREAKPOINT, TIMELINE_TEST_ID } from './constants';
 import { DayGroup } from './components/DayGroup';
 import { TimelineEntry } from './components/TimelineEntry';
 import { TimelineLayout } from './TimelineLayout';
+import type { TimelineRowAction } from './rowAction';
 import type { TimelineItem } from './types';
 import { defaultFormatDay, defaultFormatTime } from './utils/defaultFormats';
 import { groupByDay, sortNewestFirst } from './utils/groupByDay';
 import { resolveTimelineLayout } from './utils/resolveTimelineLayout';
 
-export interface TimelineProps<T extends TimelineItem> {
+export interface TimelineBaseProps<T extends TimelineItem> {
   items: readonly T[];
   accessibilityLabel: string;
-  onOpenItem?: (item: T) => void;
   renderItem?: (item: T) => React.ReactNode;
   layout?: TimelineLayout;
   breakpoint?: number;
@@ -24,6 +24,8 @@ export interface TimelineProps<T extends TimelineItem> {
   empty?: React.ReactNode;
   testID?: string;
 }
+
+export type TimelineProps<T extends TimelineItem> = TimelineBaseProps<T> & TimelineRowAction<T>;
 
 function joinLabel(day: string, time: string): string {
   return [day, time].filter((part) => part !== '').join(' ');
@@ -36,8 +38,9 @@ export function Timeline<T extends TimelineItem>({
 }: TimelineProps<T>): React.ReactElement {
   const { width } = useWindowDimensions();
   const resolved = resolveTimelineLayout(layout, width, breakpoint);
-  const sorted = useMemo(() => sortNewestFirst(items), [items]);
-  const groups = useMemo(() => groupByDay(items), [items]);
+  const isRail = resolved === TimelineLayout.Rail;
+  const sorted = useMemo(() => (isRail ? sortNewestFirst(items) : []), [items, isRail]);
+  const groups = useMemo(() => (isRail ? [] : groupByDay(items)), [items, isRail]);
   if (items.length === 0) return <View testID={`${testID}-empty`}>{empty}</View>;
   const entry = (item: T, timeLabel: string, rail: boolean, isLast: boolean): React.ReactElement => (
     <TimelineEntry
@@ -45,7 +48,7 @@ export function Timeline<T extends TimelineItem>({
       rail={rail} renderItem={renderItem} testID={`${testID}-item-${item.id}`} timeLabel={timeLabel}
     />
   );
-  if (resolved === TimelineLayout.Rail) {
+  if (isRail) {
     return (
       <View accessibilityLabel={accessibilityLabel} role="list" testID={testID}>
         {sorted.map((item, index) => {

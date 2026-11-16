@@ -69,7 +69,7 @@
     },
     "peerDependencies": {
         "@dloizides/ui-buttons": ">=1.23.0",
-        "@dloizides/ui-feedback": ">=1.2.0",
+        "@dloizides/ui-feedback": ">=1.23.0",
         "@dloizides/ui-layout": ">=1.44.0",
         "react": ">=18.0.0",
         "react-dom": ">=18.0.0",
