@@ -24,7 +24,7 @@ import { BadgeTone } from '@dloizides/ui-layout';
 | `renderItem` | `(item) => ReactNode` | slot replacing the default entry body |
 | `layout` | `TimelineLayout` | `Auto` (default), `Rail`, `Day` |
 | `breakpoint` | `number` | default 768 |
-| `formatDay`, `formatTime` | `(date) => string` | default the viewer's locale; ui-tables `RelativeTime` is not used because it is itself a button and would nest inside the entry button; pass `formatRelativeTime` from ui-tables here for relative labels |
+| `formatDay`, `formatTime` | `(date) => string` | default the viewer's locale; ui-tables `RelativeTime` is not used because it is itself a button and would nest inside the entry button; for relative labels wrap ui-tables `formatRelativeTime`: `(d) => formatRelativeTime(d, Date.now(), strings)` |
 | `openItemHint` | `string` | accessibility hint on each entry |
 | `empty` | `ReactNode` | shown when `items` is empty |
 | `testID` | `string` | default `timeline`; entries `timeline-item-<id>`, days `timeline-day-<yyyy-mm-dd>` |
